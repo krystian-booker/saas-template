@@ -1,40 +1,34 @@
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import './App.css';
-import Register from './components/Register';
-import Login from './components/Login';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Layout from './components/Layout/Layout';
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import HomePage from './pages/HomePage';
+
+const lightTheme = createTheme({
+    palette: {
+        mode: 'light'
+    }
+});
 
 function App() {
     return (
-        <Router>
-            <div>
-                <nav>
-                    <ul>
-                        <li>
-                            <Link to="/">Home</Link>
-                        </li>
-                        <li>
-                            <Link to="/register">Register</Link>
-                        </li>
-                        <li>
-                            <Link to="/login">Login</Link>
-                        </li>
-                    </ul>
-                </nav>
-
-                <hr />
-
-                <Routes>
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/" element={<Home />} />
-                </Routes>
-            </div>
-        </Router>
+        <ThemeProvider theme={lightTheme}>
+            <CssBaseline />
+            <Router>
+                <Layout>
+                    <Routes>
+                        <Route path="/" element={<LandingPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/home" element={<HomePage />} />
+                    </Routes>
+                </Layout>
+            </Router>
+        </ThemeProvider>
     );
-}
-
-function Home() {
-    return <h2>Home</h2>;
 }
 
 export default App;
