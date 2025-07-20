@@ -11,7 +11,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
         <>
             <Navbar />
-            <Container maxWidth="lg">
+            <Container maxWidth={false} sx={{ height: '100vh' }}>
                 <Box sx={{ my: 4 }}>
                     {children}
                 </Box>
