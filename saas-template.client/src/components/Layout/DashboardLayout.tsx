@@ -1,5 +1,5 @@
 import React from 'react';
-import PublicNavbar from '../Navbar/PublicNavbar';
+import DashboardNavbar from '../Navbar/DashboardNavbar';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 
@@ -7,10 +7,10 @@ interface LayoutProps {
     children: React.ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     return (
         <>
-            <PublicNavbar />
+            <DashboardNavbar />
             <Container maxWidth={false} sx={{ height: '100vh' }}>
                 <Box sx={{ my: 4 }}>
                     {children}
@@ -20,4 +20,4 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     );
 };
 
-export default Layout;
+export default DashboardLayout;
