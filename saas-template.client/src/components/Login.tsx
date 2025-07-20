@@ -1,29 +1,33 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function Login() {
+export function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [message, setMessage] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
+        setError(null);
 
-        const response = await fetch('/api/auth/login', {
+        const response = await fetch('/api/accounts/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
         });
 
-        const data = await response.json();
-
         if (response.ok) {
-            // Save the token to local storage
+            const data = await response.json();
+            // Store the token in localStorage 
             localStorage.setItem('token', data.token);
-            setMessage('Login successful!');
+            console.log('Login successful');
+            // Redirect to the home page or a protected route
+            navigate('/');
+            window.location.reload(); // Force a reload to update UI state
         } else {
-            setMessage('Login failed.');
+            setError('Login failed. Please check your credentials.');
+            console.error('Login failed');
         }
     };
 
@@ -36,7 +40,7 @@ function Login() {
                     <input
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.targe.value)}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                     />
                 </div>
@@ -49,9 +53,9 @@ function Login() {
                         required
                     />
                 </div>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button type="submit">Login</button>
             </form>
-            {message && <p>{message}</p>}
         </div>
     );
 }

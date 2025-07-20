@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function Register() {
+export function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [message, setMessage] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
-    const handleSubmit = async (event: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setError(null);
 
-        const response = await fetch('/api/auth/register', {
+        const response = await fetch('/api/accounts/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -16,12 +19,15 @@ function Register() {
             body: JSON.stringify({ email, password }),
         });
 
-        const data = await response.json();
-
         if (response.ok) {
-            setMessage(data.message);
+            console.log('Registration successful');
+            // Redirect to login page after successful registration
+            navigate('/login');
         } else {
-            setMessage(data.message);
+            const errorData = await response.json();
+            const errorMessage = errorData.errors ? Object.values(errorData.errors).flat().join(' ') : "Registration failed.";
+            setError(errorMessage);
+            console.error('Registration failed:', errorData);
         }
     };
 
@@ -47,9 +53,9 @@ function Register() {
                         required
                     />
                 </div>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button type="submit">Register</button>
             </form>
-            {message && <p>{message}</p>}
         </div>
     );
 }
