@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SaaSTemplate.Server.Model;
 
 namespace SaaSTemplate.Server.Controllers
 {

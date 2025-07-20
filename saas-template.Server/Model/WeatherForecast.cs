@@ -1,4 +1,4 @@
-namespace SaaSTemplate.Server
+namespace SaaSTemplate.Server.Model
 {
     public class WeatherForecast
     {
