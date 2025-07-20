@@ -12,7 +12,7 @@ import Link from '@mui/material/Link';
 function RegisterPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const [errors, setErrors] = useState<string[]>([]);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
 
@@ -26,9 +26,43 @@ function RegisterPage() {
         }
     }, [navigate]);
 
+    const validateForm = () => {
+        const newErrors: string[] = [];
+        if (!email) {
+            newErrors.push("Email is required.");
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            newErrors.push("Please enter a valid email address.");
+        }
+
+        if (!password) {
+            newErrors.push("Password is required.");
+        } else {
+            if (password.length < 8) {
+                newErrors.push("Password must be at least 8 characters long.");
+            }
+            if (!/[a-z]/.test(password)) {
+                newErrors.push("Password must contain at least one lowercase letter.");
+            }
+            if (!/[A-Z]/.test(password)) {
+                newErrors.push("Password must contain at least one uppercase letter.");
+            }
+            if (!/\d/.test(password)) {
+                newErrors.push("Password must contain at least one number.");
+            }
+            if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+                newErrors.push("Password must contain at least one special character.");
+            }
+        }
+
+        setErrors(newErrors);
+        return newErrors.length === 0;
+    };
+
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setError(null);
+        if (!validateForm()) {
+            return;
+        }
 
         try {
             const response = await fetch('/api/accounts/register', {
@@ -42,12 +76,18 @@ function RegisterPage() {
                 navigate('/login');
             } else {
                 const errorData = await response.json();
-                const errorMessage = errorData.errors ? Object.values(errorData.errors).flat().join(' ') : "Registration failed.";
-                setError(errorMessage);
+                if (errorData && errorData.errors) {
+                    const serverErrors = Object.values(errorData.errors).flat() as string[];
+                    setErrors(serverErrors);
+                } else if (errorData && errorData.title) {
+                    setErrors([errorData.title]);
+                } else {
+                    setErrors(["An unknown error occurred during registration."]);
+                }
                 console.error('Registration failed:', errorData);
             }
         } catch (err) {
-            setError('A network error occurred. Please try again.');
+            setErrors(['A network error occurred. Please try again.']);
             console.error('Network error:', err);
         }
     };
@@ -81,6 +121,7 @@ function RegisterPage() {
                                 autoComplete="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                error={errors.some(e => e.toLowerCase().includes('email'))}
                             />
                             <TextField
                                 margin="normal"
@@ -93,8 +134,21 @@ function RegisterPage() {
                                 autoComplete="new-password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                error={errors.some(e => e.toLowerCase().includes('password'))}
                             />
-                            {error && <Alert severity="error" sx={{ width: '100%', mt: 2 }}>{error}</Alert>}
+                            {errors.length > 0 && (
+                                <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
+                                    {errors.length === 1 ? (
+                                        errors[0]
+                                    ) : (
+                                        <ul style={{ margin: 0, paddingLeft: '1.2em' }}>
+                                            {errors.map((error, index) => (
+                                                <li key={index}>{error}</li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </Alert>
+                            )}
                             <Button
                                 type="submit"
                                 fullWidth

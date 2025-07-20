@@ -26,9 +26,25 @@ function LoginPage() {
         }
     }, [navigate]);
 
+    const validateEmail = (email: string) => {
+        // Regex for email validation
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setError(null);
+
+        // --- Client-side validation ---
+        if (!email || !password) {
+            setError("Please fill in all fields.");
+            return;
+        }
+        if (!validateEmail(email)) {
+            setError("Please enter a valid email address.");
+            return;
+        }
+        // --- End of client-side validation ---
 
         try {
             const response = await fetch('/api/accounts/login', {
@@ -43,8 +59,20 @@ function LoginPage() {
                 console.log('Login successful');
                 navigate('/home');
             } else {
-                const errorText = await response.text();
-                setError(errorText || 'Login failed. Please check your credentials.');
+                // --- Handle server-side errors ---
+                let errorMessage = 'Login failed. Please check your credentials.';
+                try {
+                    const errorData = await response.json();
+                    if (errorData && errorData.message) {
+                        errorMessage = errorData.message;
+                    } else if (errorData && errorData.errors) {
+                        // Handle validation errors from ModelState
+                        errorMessage = Object.values(errorData.errors).flat().join(' ');
+                    }
+                } catch (e) {
+                    console.error('Error parsing error response:', e);
+                }
+                setError(errorMessage);
                 console.error('Login failed');
             }
         } catch (err) {
@@ -83,6 +111,7 @@ function LoginPage() {
                                 autoFocus
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                error={!!error && (error.includes('email') || error.includes('credentials'))}
                             />
                             <TextField
                                 margin="normal"
@@ -95,6 +124,7 @@ function LoginPage() {
                                 autoComplete="current-password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                error={!!error && (error.includes('password') || error.includes('credentials'))}
                             />
                             {error && <Alert severity="error" sx={{ width: '100%', mt: 2 }}>{error}</Alert>}
                             <Button
