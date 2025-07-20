@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace saas_template.Server.Controllers
+namespace SaaSTemplate.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
