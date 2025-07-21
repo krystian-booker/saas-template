@@ -76,6 +76,63 @@ public class AccountsController : ControllerBase
         return Unauthorized(new { Message = "Invalid credentials" });
     }
 
+    // GET: api/accounts/externallogin
+    [HttpGet("externallogin")]
+    public IActionResult ExternalLogin(string provider, string returnUrl = null)
+    {
+        // Request a redirect to the external login provider.
+        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Accounts", new { returnUrl });
+        var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+        return Challenge(properties, provider);
+    }
+
+    // GET: api/accounts/externallogincallback
+    [HttpGet("externallogincallback")]
+    public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+    {
+        if (remoteError != null)
+        {
+            return BadRequest(new { Message = $"Error from external provider: {remoteError}" });
+        }
+
+        var info = await _signInManager.GetExternalLoginInfoAsync();
+        if (info == null)
+        {
+            return Redirect("/login");
+        }
+
+        // Sign in the user with this external login provider if the user already has a login.
+        var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+        if (result.Succeeded)
+        {
+            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            var token = GenerateJwtToken(user);
+            return Redirect($"/login?token={token}");
+        }
+        if (result.IsLockedOut)
+        {
+            return Redirect("/lockout");
+        }
+        else
+        {
+            // If the user does not have an account, then ask the user to create an account.
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var user = new ApplicationUser { UserName = email, Email = email };
+            var createUserResult = await _userManager.CreateAsync(user);
+            if (createUserResult.Succeeded)
+            {
+                var addLoginResult = await _userManager.AddLoginAsync(user, info);
+                if (addLoginResult.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    var token = GenerateJwtToken(user);
+                    return Redirect($"/login?token={token}");
+                }
+            }
+            return Redirect("/login");
+        }
+    }
+
     private string GenerateJwtToken(ApplicationUser user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, Link as RouterLink, useSearchParams } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
@@ -15,16 +15,28 @@ function LoginPage() {
     const [error, setError] = useState<string | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+
+    // Define providers and check if they are enabled via environment variables
+    const allProviders = [
+        { key: 'Google', displayName: 'Google', enabled: import.meta.env.VITE_AUTH_GOOGLE_ENABLED === 'true' },
+        { key: 'Microsoft', displayName: 'Microsoft', enabled: import.meta.env.VITE_AUTH_MICROSOFT_ENABLED === 'true' },
+        { key: 'Apple', displayName: 'Apple', enabled: import.meta.env.VITE_AUTH_APPLE_ENABLED === 'true' },
+        { key: 'GitHub', displayName: 'GitHub', enabled: import.meta.env.VITE_AUTH_GITHUB_ENABLED === 'true' },
+    ];
+
+    const enabledProviders = allProviders.filter(p => p.enabled);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = searchParams.get('token') || localStorage.getItem('token');
         if (token) {
+            localStorage.setItem('token', token);
             setIsLoggedIn(true);
             setTimeout(() => {
                 navigate('/home');
             }, 5000);
         }
-    }, [navigate]);
+    }, [navigate, searchParams]);
 
     const validateEmail = (email: string) => {
         // Regex for email validation
@@ -81,6 +93,10 @@ function LoginPage() {
         }
     };
 
+    const handleExternalLogin = (provider: string) => {
+        window.location.href = `/api/accounts/externallogin?provider=${provider}`;
+    };
+
     return (
         <Container component="main" maxWidth="xs">
             <Paper elevation={3} sx={{ p: 4, mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -135,7 +151,19 @@ function LoginPage() {
                             >
                                 Sign In
                             </Button>
-                            <Box textAlign='center'>
+                            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                {enabledProviders.map(provider => (
+                                    <Button
+                                        key={provider.key}
+                                        fullWidth
+                                        variant="outlined"
+                                        onClick={() => handleExternalLogin(provider.key)}
+                                    >
+                                        Sign in with {provider.displayName}
+                                    </Button>
+                                ))}
+                            </Box>
+                            <Box textAlign='center' sx={{ mt: 2 }}>
                                 <Link component={RouterLink} to="/register" variant="body2">
                                     {"Don't have an account? Sign Up"}
                                 </Link>

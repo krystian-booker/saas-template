@@ -18,14 +18,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString)
            .UseSnakeCaseNamingConvention());
 
-
 // Add Identity Services
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
 // Add JWT Authentication
-builder.Services.AddAuthentication(options =>
+var authenticationBuilder = builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -44,6 +43,45 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
     };
 });
+
+// Add external authentication providers based on appsettings.json
+var authProviders = configuration.GetSection("Authentication:Providers");
+
+if (authProviders.GetSection("Google:Enabled").Get<bool>())
+{
+    authenticationBuilder.AddGoogle(options =>
+    {
+        options.ClientId = authProviders.GetSection("Google:ClientId").Value;
+        options.ClientSecret = authProviders.GetSection("Google:ClientSecret").Value;
+    });
+}
+if (authProviders.GetSection("Microsoft:Enabled").Get<bool>())
+{
+    authenticationBuilder.AddMicrosoftAccount(options =>
+    {
+        options.ClientId = authProviders.GetSection("Microsoft:ClientId").Value;
+        options.ClientSecret = authProviders.GetSection("Microsoft:ClientSecret").Value;
+    });
+}
+if (authProviders.GetSection("Apple:Enabled").Get<bool>())
+{
+    authenticationBuilder.AddApple(options =>
+    {
+        options.ClientId = authProviders.GetSection("Apple:ClientId").Value;
+        options.TeamId = authProviders.GetSection("Apple:TeamId").Value;
+        options.KeyId = authProviders.GetSection("Apple:KeyId").Value;
+        options.PrivateKey = (keyId, _) => Task.FromResult(authProviders.GetSection("Apple:PrivateKey").Value.AsMemory());
+    });
+}
+if (authProviders.GetSection("GitHub:Enabled").Get<bool>())
+{
+    authenticationBuilder.AddGitHub(options =>
+    {
+        options.ClientId = authProviders.GetSection("GitHub:ClientId").Value;
+        options.ClientSecret = authProviders.GetSection("GitHub:ClientSecret").Value;
+    });
+}
+
 
 // Add services to the container.
 builder.Services.AddControllers();
