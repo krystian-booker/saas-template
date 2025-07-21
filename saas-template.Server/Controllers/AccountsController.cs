@@ -80,8 +80,13 @@ public class AccountsController : ControllerBase
     [HttpGet("externalsignin")]
     public IActionResult ExternalSignIn(string provider, string returnUrl = null)
     {
-        // Request a redirect to the external login provider.
-        var redirectUrl = Url.Action(nameof(ExternalSignInCallback), "Accounts", new { returnUrl });
+        var redirectUrl = Url.Action(
+            nameof(ExternalSignInCallback),
+            "Accounts",
+            new { returnUrl },
+            Request.Scheme 
+        );
+
         var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
         return Challenge(properties, provider);
     }
