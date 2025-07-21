@@ -8,6 +8,7 @@ import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Alert from '@mui/material/Alert';
 import Link from '@mui/material/Link';
+import Divider from '@mui/material/Divider';
 import { GoogleLoginButton, MicrosoftLoginButton, AppleLoginButton, GithubLoginButton } from 'react-social-login-buttons';
 
 function SignUpPage() {
@@ -106,6 +107,17 @@ function SignUpPage() {
         window.location.href = `/api/accounts/externalsignin?provider=${provider}`;
     };
 
+    const socialButtonProps = {
+        style: {
+            width: '100%',
+            height: '40px',
+            margin: '8px 0',
+            fontSize: '0.875rem',
+        },
+        iconSize: '20px',
+        size: 'small',
+    };
+
     return (
         <Container component="main" maxWidth="xs">
             <Paper elevation={3} sx={{ p: 4, mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -167,14 +179,17 @@ function SignUpPage() {
                                 type="submit"
                                 fullWidth
                                 variant="contained"
-                                sx={{ mt: 3, mb: 2 }}
+                                sx={{ mt: 3, mb: 2, textTransform: 'none' }}
                             >
                                 Sign Up
                             </Button>
-                            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+
+                            <Divider sx={{ my: 1 }}>or</Divider>
+
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                 {enabledProviders.map(provider => {
                                     const SocialLoginButton = provider.button;
-                                    return <SocialLoginButton key={provider.key} onClick={() => handleExternalSignIn(provider.key)}>
+                                    return <SocialLoginButton key={provider.key} onClick={() => handleExternalSignIn(provider.key)} {...socialButtonProps}>
                                         <span>Sign up with {provider.displayName}</span>
                                     </SocialLoginButton>
                                 })}
