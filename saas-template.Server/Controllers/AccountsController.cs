@@ -76,19 +76,19 @@ public class AccountsController : ControllerBase
         return Unauthorized(new { Message = "Invalid credentials" });
     }
 
-    // GET: api/accounts/externallogin
-    [HttpGet("externallogin")]
-    public IActionResult ExternalLogin(string provider, string returnUrl = null)
+    // GET: api/accounts/externalsignin
+    [HttpGet("externalsignin")]
+    public IActionResult ExternalSignIn(string provider, string returnUrl = null)
     {
         // Request a redirect to the external login provider.
-        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Accounts", new { returnUrl });
+        var redirectUrl = Url.Action(nameof(ExternalSignInCallback), "Accounts", new { returnUrl });
         var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
         return Challenge(properties, provider);
     }
 
-    // GET: api/accounts/externallogincallback
-    [HttpGet("externallogincallback")]
-    public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+    // GET: api/accounts/externalsignincallback
+    [HttpGet("externalsignincallback")]
+    public async Task<IActionResult> ExternalSignInCallback(string returnUrl = null, string remoteError = null)
     {
         if (remoteError != null)
         {

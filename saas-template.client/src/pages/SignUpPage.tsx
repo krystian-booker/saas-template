@@ -8,13 +8,23 @@ import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Alert from '@mui/material/Alert';
 import Link from '@mui/material/Link';
+import { GoogleLoginButton, MicrosoftLoginButton, AppleLoginButton, GithubLoginButton } from 'react-social-login-buttons';
 
-function RegisterPage() {
+function SignUpPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState<string[]>([]);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
+
+    const allProviders = [
+        { key: 'Google', displayName: 'Google', enabled: import.meta.env.VITE_AUTH_GOOGLE_ENABLED === 'true', button: GoogleLoginButton },
+        { key: 'Microsoft', displayName: 'Microsoft', enabled: import.meta.env.VITE_AUTH_MICROSOFT_ENABLED === 'true', button: MicrosoftLoginButton },
+        { key: 'Apple', displayName: 'Apple', enabled: import.meta.env.VITE_AUTH_APPLE_ENABLED === 'true', button: AppleLoginButton },
+        { key: 'GitHub', displayName: 'GitHub', enabled: import.meta.env.VITE_AUTH_GITHUB_ENABLED === 'true', button: GithubLoginButton },
+    ];
+
+    const enabledProviders = allProviders.filter(p => p.enabled);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -92,6 +102,10 @@ function RegisterPage() {
         }
     };
 
+    const handleExternalSignIn = (provider: string) => {
+        window.location.href = `/api/accounts/externalsignin?provider=${provider}`;
+    };
+
     return (
         <Container component="main" maxWidth="xs">
             <Paper elevation={3} sx={{ p: 4, mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -157,7 +171,15 @@ function RegisterPage() {
                             >
                                 Sign Up
                             </Button>
-                            <Box textAlign='center'>
+                            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                {enabledProviders.map(provider => {
+                                    const SocialLoginButton = provider.button;
+                                    return <SocialLoginButton key={provider.key} onClick={() => handleExternalSignIn(provider.key)}>
+                                        <span>Sign up with {provider.displayName}</span>
+                                    </SocialLoginButton>
+                                })}
+                            </Box>
+                            <Box textAlign='center' sx={{ mt: 2 }}>
                                 <Link component={RouterLink} to="/login" variant="body2">
                                     {"Already have an account? Sign In"}
                                 </Link>
@@ -170,4 +192,4 @@ function RegisterPage() {
     );
 }
 
-export default RegisterPage;
+export default SignUpPage;

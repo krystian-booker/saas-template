@@ -16,11 +16,11 @@ function PublicNavbar() {
 
                 {/* Navigation Buttons on the right */}
                 <Box>
-                    <Button color="inherit" component={RouterLink} to="/register" sx={{ mr: 1 }}>
-                        Register
+                    <Button color="inherit" component={RouterLink} to="/sign-up" sx={{ mr: 1 }}>
+                        Sign up
                     </Button>
-                    <Button variant="outlined" color="primary" component={RouterLink} to="/login">
-                        Login
+                    <Button variant="outlined" color="primary" component={RouterLink} to="/sign-in">
+                        Sign in
                     </Button>
                 </Box>
             </Toolbar>

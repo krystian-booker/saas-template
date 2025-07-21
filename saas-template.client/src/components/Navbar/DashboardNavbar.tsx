@@ -11,7 +11,7 @@ function DashboardNavbar() {
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        navigate('/login');
+        navigate('/sign-in');
     };
 
     return (

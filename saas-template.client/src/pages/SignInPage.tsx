@@ -8,8 +8,9 @@ import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Alert from '@mui/material/Alert';
 import Link from '@mui/material/Link';
+import { GoogleLoginButton, MicrosoftLoginButton, AppleLoginButton, GithubLoginButton } from 'react-social-login-buttons';
 
-function LoginPage() {
+function SignInPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -19,10 +20,10 @@ function LoginPage() {
 
     // Define providers and check if they are enabled via environment variables
     const allProviders = [
-        { key: 'Google', displayName: 'Google', enabled: import.meta.env.VITE_AUTH_GOOGLE_ENABLED === 'true' },
-        { key: 'Microsoft', displayName: 'Microsoft', enabled: import.meta.env.VITE_AUTH_MICROSOFT_ENABLED === 'true' },
-        { key: 'Apple', displayName: 'Apple', enabled: import.meta.env.VITE_AUTH_APPLE_ENABLED === 'true' },
-        { key: 'GitHub', displayName: 'GitHub', enabled: import.meta.env.VITE_AUTH_GITHUB_ENABLED === 'true' },
+        { key: 'Google', displayName: 'Google', enabled: import.meta.env.VITE_AUTH_GOOGLE_ENABLED === 'true', button: GoogleLoginButton },
+        { key: 'Microsoft', displayName: 'Microsoft', enabled: import.meta.env.VITE_AUTH_MICROSOFT_ENABLED === 'true', button: MicrosoftLoginButton },
+        { key: 'Apple', displayName: 'Apple', enabled: import.meta.env.VITE_AUTH_APPLE_ENABLED === 'true', button: AppleLoginButton },
+        { key: 'GitHub', displayName: 'GitHub', enabled: import.meta.env.VITE_AUTH_GITHUB_ENABLED === 'true', button: GithubLoginButton },
     ];
 
     const enabledProviders = allProviders.filter(p => p.enabled);
@@ -68,11 +69,11 @@ function LoginPage() {
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem('token', data.token);
-                console.log('Login successful');
+                console.log('Sign in successful');
                 navigate('/home');
             } else {
                 // --- Handle server-side errors ---
-                let errorMessage = 'Login failed. Please check your credentials.';
+                let errorMessage = 'Sign in failed. Please check your credentials.';
                 try {
                     const errorData = await response.json();
                     if (errorData && errorData.message) {
@@ -85,7 +86,7 @@ function LoginPage() {
                     console.error('Error parsing error response:', e);
                 }
                 setError(errorMessage);
-                console.error('Login failed');
+                console.error('Sign in failed');
             }
         } catch (err) {
             setError('A network error occurred. Please try again.');
@@ -93,8 +94,8 @@ function LoginPage() {
         }
     };
 
-    const handleExternalLogin = (provider: string) => {
-        window.location.href = `/api/accounts/externallogin?provider=${provider}`;
+    const handleExternalSignIn = (provider: string) => {
+        window.location.href = `/api/accounts/externalsignin?provider=${provider}`;
     };
 
     return (
@@ -152,16 +153,12 @@ function LoginPage() {
                                 Sign In
                             </Button>
                             <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                {enabledProviders.map(provider => (
-                                    <Button
-                                        key={provider.key}
-                                        fullWidth
-                                        variant="outlined"
-                                        onClick={() => handleExternalLogin(provider.key)}
-                                    >
-                                        Sign in with {provider.displayName}
-                                    </Button>
-                                ))}
+                                {enabledProviders.map(provider => {
+                                    const SocialLoginButton = provider.button;
+                                    return <SocialLoginButton key={provider.key} onClick={() => handleExternalSignIn(provider.key)}>
+                                        <span>Sign in with {provider.displayName}</span>
+                                    </SocialLoginButton>
+                                })}
                             </Box>
                             <Box textAlign='center' sx={{ mt: 2 }}>
                                 <Link component={RouterLink} to="/register" variant="body2">
@@ -176,4 +173,4 @@ function LoginPage() {
     );
 }
 
-export default LoginPage;
+export default SignInPage;
