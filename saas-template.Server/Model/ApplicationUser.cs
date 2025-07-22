@@ -4,7 +4,6 @@ namespace SaaSTemplate.Server.Model
 {
     public class ApplicationUser : IdentityUser
     {
-        // public string? FirstName { get; set; }
-        // public string? LastName { get; set; }
+        public ICollection<UserSetting> UserSettings { get; set; } = new List<UserSetting>();
     }
 }

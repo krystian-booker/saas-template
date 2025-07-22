@@ -25,8 +25,15 @@ namespace SaaSTemplate.Server.Data
             builder.Entity<IdentityRole>(b => { b.ToTable("asp_net_roles"); });
             builder.Entity<IdentityRoleClaim<string>>(b => { b.ToTable("asp_net_role_claims"); });
             builder.Entity<IdentityUserRole<string>>(b => { b.ToTable("asp_net_user_roles"); });
+
+            // Constraints
+            builder.Entity<UserSetting>()
+                .HasIndex(us => new { us.UserId, us.SettingId })
+                .IsUnique();
         }
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Setting> Settings { get; set; }
+        public DbSet<SettingOption> SettingOptions { get; set; }
+        public DbSet<UserSetting> UserSettings { get; set; }
     }
 }
