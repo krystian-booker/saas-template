@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SaaSTemplate.Server.Data;
 using SaaSTemplate.Server.Model;
+using SaaSTemplate.Server.Services;
 using System.Text;
 
 // =================================================================
@@ -87,7 +88,8 @@ if (authProviders.GetSection("GitHub:Enabled").Get<bool>())
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddHttpClient<IgdbService>();
+builder.Services.AddScoped<IgdbService>();
 
 // =================================================================
 // 2. HTTP Request Pipeline Configuration

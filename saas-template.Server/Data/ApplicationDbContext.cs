@@ -35,5 +35,6 @@ namespace SaaSTemplate.Server.Data
         public DbSet<Setting> Settings { get; set; }
         public DbSet<SettingOption> SettingOptions { get; set; }
         public DbSet<UserSetting> UserSettings { get; set; }
+        public DbSet<Game> Games { get; set; }
     }
 }

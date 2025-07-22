@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SaaSTemplate.Server.Data;
@@ -11,9 +12,11 @@ using SaaSTemplate.Server.Data;
 namespace SaaSTemplate.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250722014533_AddGamesTable")]
+    partial class AddGamesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -276,6 +279,7 @@ namespace SaaSTemplate.Server.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CoverUrl")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("cover_url");
 
@@ -284,18 +288,21 @@ namespace SaaSTemplate.Server.Migrations
                         .HasColumnName("igdb_id");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
 
-                    b.Property<double?>("Rating")
+                    b.Property<double>("Rating")
                         .HasColumnType("double precision")
                         .HasColumnName("rating");
 
                     b.Property<string>("Storyline")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("storyline");
 
                     b.Property<string>("Summary")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("summary");
 
